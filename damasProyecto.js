@@ -48,63 +48,48 @@
     }
 
     // se verifica que el movimiento es valido segun las reglas del juego (movimiento en diagonal)
+
     function validarDestino(fila_origen, columna_origen, fila_destino, columna_destino, oponente, jugador) {
-        // isEmpty es una variable booleana
-        const isEmpty = tablero[fila_destino][columna_destino] === ' '; // es true o false, si la posición donde se está intentando mover está vacía
-
-        let filaDest;
-        let filaDest2;
-        let filaOp;
-
-        if (jugador === 'X') { // si está jugando la blanca, el movimiento es hacia abajo
-            // filaDest y filaDest2 son variables booleanas
-            filaDest = ((fila_destino === fila_origen + 1) && (fila_origen + 1) <= 7);
-            filaDest2 = ((fila_destino === fila_origen + 2) && (fila_origen + 2) <= 7);
-
-            // filaOp es una variable numerica -> es la fila donde debe estar el oponente
-            filaOp = fila_origen + 1; // la fila del oponente (si la ficha es blanca, el oponente esta una fila hacia abajo)
-
-        } else if (jugador === 'O') { // si está jugando la negra, el movimiento es hacia arriba
-            filaDest = ((fila_destino === fila_origen - 1) && (fila_origen - 1) >= 0);
-            filaDest2 = ((fila_destino === fila_origen - 2) && (fila_origen - 2) >= 0);
-            filaOp = fila_origen - 1; // la fila del oponente (si la ficha es negra, el oponente esta una fila hacia arriba)
-            console.log(fila_origen+" y "+fila_destino)
+        // Verificar si el movimiento está dentro del tablero
+        if (fila_destino < 0 || fila_destino > 7 || columna_destino < 0 || columna_destino > 7) {
+            return -1; // Movimiento fuera del tablero
         }
-
-        // variables booleanas que verifican si hay un oponente en la posicion adyacente
-        const hayOponenteRight = tablero[filaOp][columna_origen + 1] === oponente;
-        const hayOponenteLeft = tablero[filaOp][columna_origen - 1] === oponente
-
-        if (isEmpty) {
-            if (filaDest) { // se mueve un paso
-                if (
-                    (columna_destino === columna_origen + 1) ||
-                    (columna_destino === columna_origen - 1)
-                ) {
-                    return 0;
-                }
+    
+        // Verificar si la casilla de destino no está ocupada
+        if (tablero[fila_destino][columna_destino] !== ' ') {
+            return -1; // La casilla de destino no está vacía
+        }
+    
+        const DiffFila = fila_destino - fila_origen;
+        const DiffColumna = columna_destino - columna_origen;
+    
+        if ((DiffFila === 1 || DiffFila === -1) && (DiffColumna === 1 || DiffColumna === -1)) {
+            // Movimiento válido de una casilla en diagonal
+            if ((jugador === 'X' && fila_destino > fila_origen) || (jugador === 'O' && fila_destino < fila_origen)) {
+                return 0;
             }
-            if (filaDest2) { // se mueve 2 pasos si hay un oponente en la posicion adyacente
-                if ((columna_destino === columna_origen + 2) && (columna_origen + 2 <= 7)) {
-                    if (hayOponenteRight) {
-                        tablero[filaOp][columna_origen + 1] = ' '; // se come al oponente
-                        return 1; // se retorna 1 que significa que le comio a un oponente
-                    }
+        }
+    
+        if ((DiffFila === 2 || DiffFila === -2) && (DiffColumna === 2 || DiffColumna === -2)) {
+            // Movimiento con salto sobre el oponente
+            const filaOp = (fila_destino + fila_origen) / 2;
+            const columnaOp = (columna_destino + columna_origen) / 2;
 
+    
+            if (tablero[filaOp][columnaOp] === oponente) {
+                if ((jugador === 'X' && fila_destino > fila_origen)) {
+                    tablero[filaOp][columnaOp] = ' ';
+                    return 1; // Movimiento válido con salto sobre el oponente
                 }
-                else if ((columna_destino === columna_origen - 2) && (columna_origen - 2 >= 0)) {
-                    if (hayOponenteLeft) {
-                        tablero[filaOp][columna_origen - 1] = ' ';
-                        return 1;
-                    }
-
+                else if ((jugador === 'O' && fila_destino < fila_origen)) {
+                    tablero[filaOp][columnaOp]= ' ';
+                    return 1; // Movimiento válido con salto sobre el oponente
                 }
             }
         }
-
-        return -1;
-    }
-
+    
+        return -1; // Movimiento no válido
+    }   
 
     function jugarPieza(fila_origen, columna_origen, fila_destino, columna_destino, jugador) {
         let oponente;
@@ -227,17 +212,21 @@
             console.log("Juega el que maneja la ficha: "+ fichaUsuario)
             contUsuario += juegaUsuario(fichaUsuario);
             mostrarTablero();
+
             if (fichaUsuario == 'X') {
-                contX+=contUsuario;
+                if(contUsuario==1){
+                contX++;
+            }
                 fichaUsuario = 'O';
                 oponente = 'X';
 
             } else {
-                contO+=contUsuario;
+                if(contUsuario==1){
+                    contO++;
+                }
                 fichaUsuario = 'X';
                 oponente = 'O';
             }
-            
         }
         if (ganador == "X") {
             contX;
